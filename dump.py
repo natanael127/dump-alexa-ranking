@@ -2,6 +2,7 @@
 # IMPORTS =====================================================================
 import urllib.request, urllib.error, urllib.parse
 import json
+import os
 
 # CONSTANTS ============================================================================================================
 BASE_ALEXA_SITE =       "https://www.alexa.com"
@@ -15,6 +16,7 @@ SITE_ITEM_END_0 =       "</p>"
 SITE_ITEM_BEGIN_1 =     "<a href=\"/siteinfo/"
 SITE_ITEM_END_1 =       "\">"
 FILE_TO_SAVE =          "data.json"
+LOCAL_PATH_PREFIX =     ""
 THRESHOLD_TO_SAVE =     100
 
 # FUNCTIONS ============================================================================================================
@@ -29,9 +31,8 @@ def web_page_to_text(url):
         pass
     return text_return
 
-def alexa_get_subcateg(sufix):
+def alexa_get_subcateg_offline(content):
     list_subcateg = []
-    content = web_page_to_text(BASE_ALEXA_SITE + sufix)
     position = content.find(SUBCATEG_TITLE_BEGIN)
     if position != -1:
         content = content[position:-1]
@@ -44,9 +45,8 @@ def alexa_get_subcateg(sufix):
             list_subcateg.append(content[0:position].split(SUBCATEG_ITEM_SPLIT)[0])
     return list_subcateg
 
-def alexa_get_sites(sufix):
+def alexa_get_sites_offline(content):
     list_sites = []
-    content = web_page_to_text(BASE_ALEXA_SITE + sufix)
     while content.find(SITE_ITEM_BEGIN_0) != -1:
         position = content.find(SITE_ITEM_BEGIN_0) + len(SITE_ITEM_BEGIN_0)
         content = content[position:-1]
@@ -59,45 +59,63 @@ def alexa_get_sites(sufix):
         list_sites.append(raw_item)
     return list_sites
 
+def alexa_get_subcateg(sufix):
+    content = web_page_to_text(BASE_ALEXA_SITE + sufix)
+    alexa_get_subcateg_offline(content)
+
+def alexa_get_sites(sufix):    
+    content = web_page_to_text(BASE_ALEXA_SITE + sufix)
+    alexa_get_sites_offline(content)
+
+def open_creating_dirs(path, mode):
+    list_path = path.split("/")
+    partial_path = "."
+    while len(list_path) > 1:
+        partial_path = partial_path + "/" + list_path.pop(0)
+        if not os.path.isdir(partial_path):
+            os.mkdir(partial_path)
+    fpx = open(path, mode)
+    return fpx
+
 # MAIN SCRIPT ==========================================================================================================
 # Loads existent file
 try:
     fp = open(FILE_TO_SAVE, "r")
     all_data = json.load(fp)
     fp.close()
+except KeyboardInterrupt:
+    exit()
 except:
     all_data = {}
 # Control
 dont_stress_the_disk = 0
+always_increment = 0
 # Stack as list
 list_to_explore = ["/topsites/category/Top"]
 #Depth first algorithm
 while len(list_to_explore) > 0:
-    item_to_explore = list_to_explore.pop(0) #Stack control
+    item_to_explore = LOCAL_PATH_PREFIX + list_to_explore.pop(0) #Stack control
+    local_path = item_to_explore[1:] + ".html"
+    always_increment += 1
     print("")
     print("Exploring: " + item_to_explore)
     print("List size: " + str(len(list_to_explore)))
-    explored_result = alexa_get_subcateg(item_to_explore)
-    if len(explored_result) == 0: #End node
-        hierarchical_key_list = item_to_explore.split("/")
-        hierarchical_key_list.remove("")
-        curr_dict = all_data
-        for i in range(len(hierarchical_key_list)):
-            if hierarchical_key_list[i] not in curr_dict.keys():
-                if i == len(hierarchical_key_list) - 1:
-                    curr_dict[hierarchical_key_list[i]] = alexa_get_sites(item_to_explore)
-                    print("Found sites: " + str(len(curr_dict[hierarchical_key_list[i]])))
-                    dont_stress_the_disk += 1
-                    print("End-points until disk record: " + str(THRESHOLD_TO_SAVE - dont_stress_the_disk))
-                    if dont_stress_the_disk >= THRESHOLD_TO_SAVE:
-                        dont_stress_the_disk = 0
-                        fp = open(FILE_TO_SAVE, "w")
-                        json.dump(all_data, fp)
-                        fp.close()
-                else:
-                    curr_dict[hierarchical_key_list[i]] = {}
-            curr_dict = curr_dict[hierarchical_key_list[i]] #Shallow copy
-        
-    else: #Parent node
+    print("Total nodes: " + str(always_increment))
+    try:
+        fp = open(local_path, "r")
+    except KeyboardInterrupt:
+        exit()
+    except:
+        text_buffer = web_page_to_text(BASE_ALEXA_SITE + item_to_explore) 
+        fp = open_creating_dirs(local_path, "w")
+        try:
+            fp.write(text_buffer)
+        except: #Uninterruptable write
+            pass
+        fp.close()
+        fp = open(local_path, "r")
+    explored_result = alexa_get_subcateg_offline(fp.read())
+    fp.close()
+    if len(explored_result) != 0:
         list_to_explore = explored_result + list_to_explore
 
