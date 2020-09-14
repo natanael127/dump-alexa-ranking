@@ -39,7 +39,7 @@ def alexa_get_subcateg_page(sufix):
             position = content.find(SUBCATEG_ITEM_BEGIN) + len(SUBCATEG_ITEM_BEGIN)
             content = content[position:-1]
             position = content.find(SUBCATEG_ITEM_END)
-            list_subcateg.append(tuple(content[0:position].split(SUBCATEG_ITEM_SPLIT)))
+            list_subcateg.append(content[0:position].split(SUBCATEG_ITEM_SPLIT)[0])
     return list_subcateg
 
 def alexa_get_sites_page(sufix):
@@ -57,33 +57,42 @@ def alexa_get_sites_page(sufix):
         list_sites.append(raw_item)
     return list_sites
 
-fp = open(FILE_TO_SAVE, "r")
-all_data = json.load(fp)
-fp.close()
+#Loads existent file
+try:
+    fp = open(FILE_TO_SAVE, "r")
+    all_data = json.load(fp)
+    fp.close()
+except:
+    all_data = {}
 dont_stress_the_disk = 0
-list_to_explore = [("/topsites/category/Top/Games/Video_Games", "Video Games"), ("/topsites/category/Top/Games/Yard,_Deck,_and_Table_Games", "Yard, Deck, and Table Games")]
+list_to_explore = ["/topsites/category/Top/Games/Video_Games", "/topsites/category/Top/Games/Yard,_Deck,_and_Table_Games"]
 
 while len(list_to_explore) > 0:
     item_to_explore = list_to_explore.pop(0)
-    print("List size: " + str(len(list_to_explore)) + " ||| Exploring: " + item_to_explore[0])
-    explored_result = alexa_get_subcateg_page(item_to_explore[0])
+    print("")
+    print("Exploring: " + item_to_explore)
+    print("List size: " + str(len(list_to_explore)))
+    explored_result = alexa_get_subcateg_page(item_to_explore)
     if len(explored_result) == 0:
-        hierarchical_key_list = item_to_explore[0].split("/")
+        hierarchical_key_list = item_to_explore.split("/")
         hierarchical_key_list.remove("")
         curr_dict = all_data
         for i in range(len(hierarchical_key_list)):
             if hierarchical_key_list[i] not in curr_dict.keys():
                 if i == len(hierarchical_key_list) - 1:
-                    curr_dict[hierarchical_key_list[i]] = alexa_get_sites_page(item_to_explore[0])
+                    curr_dict[hierarchical_key_list[i]] = alexa_get_sites_page(item_to_explore)
+                    print("Found sites: " + str(len(curr_dict[hierarchical_key_list[i]])))
+                    dont_stress_the_disk += 1
+                    print("End-points until disk record: " + str(THRESHOLD_TO_SAVE - dont_stress_the_disk))
+                    if dont_stress_the_disk >= THRESHOLD_TO_SAVE:
+                        dont_stress_the_disk = 0
+                        fp = open(FILE_TO_SAVE, "w")
+                        json.dump(all_data, fp)
+                        fp.close()
                 else:
                     curr_dict[hierarchical_key_list[i]] = {}
             curr_dict = curr_dict[hierarchical_key_list[i]] #Shallow copy
-        dont_stress_the_disk += 1
-        if dont_stress_the_disk >= THRESHOLD_TO_SAVE:
-            dont_stress_the_disk = 0
-            fp = open(FILE_TO_SAVE, "w")
-            json.dump(all_data, fp)
-            fp.close()
+        
     else:
         list_to_explore = explored_result + list_to_explore
 
