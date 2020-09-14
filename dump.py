@@ -1,4 +1,4 @@
-# IMPORTS =====================================================================
+# IMPORTS ==============================================================================================================
 import urllib.request, urllib.error, urllib.parse
 import json
 import os
@@ -77,15 +77,6 @@ def open_creating_dirs(path, mode):
     return fpx
 
 # MAIN SCRIPT ==========================================================================================================
-# Loads existent file
-try:
-    fp = open(FILE_TO_SAVE, "r")
-    all_data = json.load(fp)
-    fp.close()
-except KeyboardInterrupt:
-    exit()
-except:
-    all_data = {}
 # Control
 dont_stress_the_disk = 0
 always_increment = 0
@@ -100,11 +91,9 @@ while len(list_to_explore) > 0:
     print("Exploring: " + item_to_explore)
     print("List size: " + str(len(list_to_explore)))
     print("Total nodes: " + str(always_increment))
-    try:
+    if os.path.exists(local_path):
         fp = open(local_path, "r")
-    except KeyboardInterrupt:
-        exit()
-    except:
+    else:
         text_buffer = web_page_to_text(BASE_ALEXA_SITE + item_to_explore) 
         fp = open_creating_dirs(local_path, "w")
         try:
