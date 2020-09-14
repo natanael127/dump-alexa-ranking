@@ -1,4 +1,3 @@
-#TODO: interpret root categories
 # IMPORTS =====================================================================
 import urllib.request, urllib.error, urllib.parse
 import json
@@ -94,8 +93,8 @@ always_increment = 0
 list_to_explore = ["/topsites/category/Top"]
 #Depth first algorithm
 while len(list_to_explore) > 0:
-    item_to_explore = LOCAL_PATH_PREFIX + list_to_explore.pop(0) #Stack control
-    local_path = item_to_explore[1:] + ".html"
+    item_to_explore = list_to_explore.pop(0) #Stack control
+    local_path = LOCAL_PATH_PREFIX + item_to_explore[1:] + ".html"
     always_increment += 1
     print("")
     print("Exploring: " + item_to_explore)
