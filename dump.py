@@ -15,7 +15,7 @@ SITE_ITEM_END_0 =       "</p>"
 SITE_ITEM_BEGIN_1 =     "<a href=\"/siteinfo/"
 SITE_ITEM_END_1 =       "\">"
 FILE_TO_SAVE =          "data.json"
-LOCAL_PATH_PREFIX =     ""
+LOCAL_PATH_PREFIX =     "./"
 THRESHOLD_TO_SAVE =     100
 
 # FUNCTIONS ============================================================================================================
@@ -68,9 +68,9 @@ def alexa_get_sites(sufix):
 
 def open_creating_dirs(path, mode):
     list_path = path.split("/")
-    partial_path = "."
+    partial_path = ""
     while len(list_path) > 1:
-        partial_path = partial_path + "/" + list_path.pop(0)
+        partial_path = os.path.join(partial_path, list_path.pop(0))
         if not os.path.isdir(partial_path):
             os.mkdir(partial_path)
     fpx = open(path, mode)
