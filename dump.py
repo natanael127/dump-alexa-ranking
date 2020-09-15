@@ -67,12 +67,8 @@ def alexa_get_sites(sufix):
     alexa_get_sites_offline(content)
 
 def open_creating_dirs(path, mode):
-    list_path = path.split("/")
-    partial_path = ""
-    for k in range(len(list_path) - 1):
-        partial_path = os.path.join(partial_path, list_path[k])
-    if not os.path.isdir(partial_path):
-        os.makedirs(partial_path)
+    if not os.path.isdir(os.path.dirname(path)):
+        os.makedirs(os.path.dirname(path))
     fpx = open(path, mode)
     return fpx
 
