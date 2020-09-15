@@ -76,30 +76,33 @@ def open_creating_dirs(path, mode):
 # Control
 dont_stress_the_disk = 0
 always_increment = 0
+visited_list = []
 # Stack as list
 list_to_explore = ["/topsites/category/Top"]
 #Depth first algorithm
 while len(list_to_explore) > 0:
     item_to_explore = list_to_explore.pop(0) #Stack control
-    local_path = LOCAL_PATH_PREFIX + item_to_explore[1:] + ".html"
-    always_increment += 1
-    print("")
-    print("Exploring: " + item_to_explore)
-    print("List size: " + str(len(list_to_explore)))
-    print("Total nodes: " + str(always_increment))
-    if os.path.exists(local_path) and os.stat(local_path).st_size != 0:
-        fp = open(local_path, "r")
-    else:
-        text_buffer = web_page_to_text(BASE_ALEXA_SITE + item_to_explore) 
-        try:
-            fp = open_creating_dirs(local_path, "w")
-            fp.write(text_buffer)
-        except: #Uninterruptable write
-            pass
+    if item_to_explore not in visited_list:
+        visited_list.append(item_to_explore)
+        local_path = LOCAL_PATH_PREFIX + item_to_explore[1:] + ".html"
+        always_increment += 1
+        print("")
+        print("Exploring: " + item_to_explore)
+        print("List size: " + str(len(list_to_explore)))
+        print("Total nodes: " + str(always_increment))
+        if os.path.exists(local_path) and os.stat(local_path).st_size != 0:
+            fp = open(local_path, "r")
+        else:
+            text_buffer = web_page_to_text(BASE_ALEXA_SITE + item_to_explore) 
+            try:
+                fp = open_creating_dirs(local_path, "w")
+                fp.write(text_buffer)
+            except: #Uninterruptable write
+                pass
+            fp.close()
+            fp = open(local_path, "r")
+        explored_result = alexa_get_subcateg_offline(fp.read())
         fp.close()
-        fp = open(local_path, "r")
-    explored_result = alexa_get_subcateg_offline(fp.read())
-    fp.close()
-    if len(explored_result) != 0:
-        list_to_explore = explored_result + list_to_explore
+        if len(explored_result) != 0:
+            list_to_explore = explored_result + list_to_explore
 
