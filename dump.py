@@ -87,12 +87,12 @@ while len(list_to_explore) > 0:
     print("Exploring: " + item_to_explore)
     print("List size: " + str(len(list_to_explore)))
     print("Total nodes: " + str(always_increment))
-    if os.path.exists(local_path):
+    if os.path.exists(local_path) and os.stat(local_path).st_size != 0:
         fp = open(local_path, "r")
     else:
         text_buffer = web_page_to_text(BASE_ALEXA_SITE + item_to_explore) 
-        fp = open_creating_dirs(local_path, "w")
         try:
+            fp = open_creating_dirs(local_path, "w")
             fp.write(text_buffer)
         except: #Uninterruptable write
             pass
