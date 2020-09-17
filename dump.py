@@ -130,7 +130,7 @@ while len(list_to_explore) > 0:
                     fp_item.close()
                 except: #Uninterruptable write
                     pass
-            fp_item = open(local_path, "r", encoding="cp1252")
+            fp_item = open(local_path, "r", encoding="utf-8")
             text_buffer = fp_item.read()
             fp_item.close()
             # Parses HTML
