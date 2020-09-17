@@ -58,14 +58,6 @@ def alexa_get_sites_offline(content):
         list_sites.append(raw_item)
     return list_sites
 
-def alexa_get_subcateg(sufix):
-    content = web_page_to_text(BASE_ALEXA_SITE + sufix)
-    alexa_get_subcateg_offline(content)
-
-def alexa_get_sites(sufix):    
-    content = web_page_to_text(BASE_ALEXA_SITE + sufix)
-    alexa_get_sites_offline(content)
-
 def open_creating_dirs(path, mode):
     if not os.path.isdir(os.path.dirname(path)):
         os.makedirs(os.path.dirname(path))
