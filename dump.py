@@ -5,6 +5,7 @@ import os
 
 # CONSTANTS ============================================================================================================
 BASE_ALEXA_SITE =       "https://www.alexa.com"
+NO_SUBCATEG_STRING =    "_Uncategorized_"
 SUBCATEG_TITLE_BEGIN =  "<div class=\"categories"
 SUBCATEG_TITLE_END =    "</section>"
 SUBCATEG_ITEM_BEGIN =   "<li><a href=\""
@@ -96,7 +97,12 @@ while len(list_to_explore) > 0:
                 break
             else:
                 curr_dict = curr_dict[key_name]
-        if not is_item_already_in_json:
+        if is_item_already_in_json and len(curr_dict.keys()) > 0:
+            explored_subcateg = []
+            for subcateg_name in curr_dict.keys():
+                explored_subcateg.append(item_to_explore + "/" + subcateg_name)
+            list_to_explore = explored_subcateg + list_to_explore
+        else:
             local_path = LOCAL_PATH_PREFIX + item_to_explore[1:] + ".html"
             always_increment += 1
             print("")
@@ -119,7 +125,27 @@ while len(list_to_explore) > 0:
                 fp_item = open(local_path, "r")
             text_buffer = fp_item.read()
             fp_item.close()
+            # Parses HTML
             explored_subcateg = alexa_get_subcateg_offline(text_buffer)
-            if len(explored_subcateg) != 0:
+            explored_sites = alexa_get_sites_offline(text_buffer)
+            curr_dict = output_data
+            # Selects point in output dictionary
+            for i in range(len(item_hierarchy) - 1):
+                if item_hierarchy[i] not in curr_dict.keys():
+                    curr_dict[item_hierarchy[i]] = {}
+                curr_dict = curr_dict[item_hierarchy[i]]
+            # Handles the number of subcategories
+            if len(explored_subcateg) > 0:
+                curr_dict[item_hierarchy[-1]] = {}
+                curr_dict = curr_dict[item_hierarchy[-1]]
+                for subcateg_path in explored_subcateg:
+                    curr_dict[subcateg_path.split("/")[-1]] = {}
                 list_to_explore = explored_subcateg + list_to_explore
-
+            else:
+                curr_dict[item_hierarchy[-1]] = explored_sites
+            fp_json = open(FILE_OUTPUT, "w")
+            json.dump(output_data, fp_json)
+            fp_json.close()
+            if len(explored_sites) > 0:
+                #TODO: put to uncategoryzed
+                pass
