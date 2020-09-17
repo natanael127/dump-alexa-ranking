@@ -65,22 +65,27 @@ def open_creating_dirs(path, mode):
     fp_itemx = open(path, mode)
     return fp_itemx
 
+def overwrites_json_file(dict_data, path):
+    fp = open(path, "w")
+    json.dump(dict_data, fp)
+    fp.close()
+
 # MAIN SCRIPT ==========================================================================================================
 # Output file initialization
 if os.path.exists(FILE_OUTPUT):
     fp_json = open(FILE_OUTPUT, "r")
     output_data = json.load(fp_json)
+    fp_json.close()
 else:
     output_data = {}
-    fp_json = open(FILE_OUTPUT, "w")
-    json.dump(output_data, fp_json)
-fp_json.close()
+    overwrites_json_file(output_data, FILE_OUTPUT)
 # Controls
 dont_stress_the_disk = 0
 always_increment = 0
 visited_list = []
 # Stack as list
 list_to_explore = ["/topsites/category/Top"]
+
 #Depth first algorithm
 while len(list_to_explore) > 0:
     item_to_explore = list_to_explore.pop(0) #Stack control using always 0
@@ -147,11 +152,7 @@ while len(list_to_explore) > 0:
             # Writes to output file with control
             dont_stress_the_disk += 1
             if dont_stress_the_disk >= THRESHOLD_TO_SAVE:
-                fp_json = open(FILE_OUTPUT, "w")
-                json.dump(output_data, fp_json)
-                fp_json.close()
+                overwrites_json_file(output_data, FILE_OUTPUT)
 
 # Writes final result anyway
-fp_json = open(FILE_OUTPUT, "w")
-json.dump(output_data, fp_json)
-fp_json.close()
+overwrites_json_file(output_data, FILE_OUTPUT)
