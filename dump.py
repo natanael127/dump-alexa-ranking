@@ -5,7 +5,7 @@ import os
 
 # CONSTANTS ============================================================================================================
 BASE_ALEXA_SITE =       "https://www.alexa.com"
-NO_SUBCATEG_STRING =    "_Uncategorized_"
+STRING_NO_SUBCATEG =    "_Uncategorized_"
 SUBCATEG_TITLE_BEGIN =  "<div class=\"categories"
 SUBCATEG_TITLE_END =    "</section>"
 SUBCATEG_ITEM_BEGIN =   "<li><a href=\""
@@ -140,11 +140,12 @@ while len(list_to_explore) > 0:
                 curr_dict = curr_dict[item_hierarchy[-1]]
                 for subcateg_path in explored_subcateg:
                     curr_dict[subcateg_path.split("/")[-1]] = {}
+                curr_dict[STRING_NO_SUBCATEG] = explored_sites
                 list_to_explore = explored_subcateg + list_to_explore
             else:
                 curr_dict[item_hierarchy[-1]] = explored_sites
             if len(explored_sites) > 0:
-                #TODO: put to uncategoryzed
+                #TODO: process uncategoryzed backward
                 pass
             # Writes to output file with control
             dont_stress_the_disk += 1
