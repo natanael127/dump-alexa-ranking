@@ -102,19 +102,21 @@ while len(list_to_explore) > 0:
                 break
             else:
                 curr_dict = curr_dict[key_name]
-        if is_item_already_in_json and len(curr_dict.keys()) > 0:
+        if type(curr_dict) != type({}):
+            pass # Ignores not-dictionary objects to avoid errors
+        elif is_item_already_in_json and len(curr_dict.keys()) > 0:
             explored_subcateg = []
             for subcateg_name in curr_dict.keys():
                 explored_subcateg.append(item_to_explore + "/" + subcateg_name)
             list_to_explore = explored_subcateg + list_to_explore
-        else:
+        else: # Needs to be explored by internet / file buffer
             local_path = LOCAL_PATH_PREFIX + item_to_explore[1:] + ".html"
             always_increment += 1
             print("")
             print("Exploring: " + item_to_explore)
             print("List size: " + str(len(list_to_explore)))
             print("Total nodes: " + str(always_increment))
-            #Verify file download
+            # Verify file download
             if os.path.exists(local_path) and os.stat(local_path).st_size != 0:
                 fp_item = open(local_path, "r")
                 print("Available offline")
