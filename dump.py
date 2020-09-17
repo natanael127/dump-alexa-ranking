@@ -143,9 +143,17 @@ while len(list_to_explore) > 0:
                 list_to_explore = explored_subcateg + list_to_explore
             else:
                 curr_dict[item_hierarchy[-1]] = explored_sites
-            fp_json = open(FILE_OUTPUT, "w")
-            json.dump(output_data, fp_json)
-            fp_json.close()
             if len(explored_sites) > 0:
                 #TODO: put to uncategoryzed
                 pass
+            # Writes to output file with control
+            dont_stress_the_disk += 1
+            if dont_stress_the_disk >= THRESHOLD_TO_SAVE:
+                fp_json = open(FILE_OUTPUT, "w")
+                json.dump(output_data, fp_json)
+                fp_json.close()
+
+# Writes final result anyway
+fp_json = open(FILE_OUTPUT, "w")
+json.dump(output_data, fp_json)
+fp_json.close()
