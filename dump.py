@@ -117,10 +117,7 @@ while len(list_to_explore) > 0:
             print("List size: " + str(len(list_to_explore)))
             print("Total nodes: " + str(always_increment))
             # Verify file download
-            if os.path.exists(local_path) and os.stat(local_path).st_size != 0:
-                fp_item = open(local_path, "r")
-                print("Available offline")
-            else:
+            if not os.path.exists(local_path) or os.stat(local_path).st_size == 0:
                 print("Downloading")
                 text_buffer = web_page_to_text(BASE_ALEXA_SITE + item_to_explore) 
                 try:
@@ -129,7 +126,7 @@ while len(list_to_explore) > 0:
                 except: #Uninterruptable write
                     pass
                 fp_item.close()
-                fp_item = open(local_path, "r")
+            fp_item = open(local_path, "r")
             text_buffer = fp_item.read()
             fp_item.close()
             # Parses HTML
