@@ -85,27 +85,40 @@ while len(list_to_explore) > 0:
     item_to_explore = list_to_explore.pop(0) #Stack control using always 0
     if item_to_explore not in visited_list:
         visited_list.append(item_to_explore)
-        local_path = LOCAL_PATH_PREFIX + item_to_explore[1:] + ".html"
-        always_increment += 1
-        print("")
-        print("Exploring: " + item_to_explore)
-        print("List size: " + str(len(list_to_explore)))
-        print("Total nodes: " + str(always_increment))
-        if os.path.exists(local_path) and os.stat(local_path).st_size != 0:
-            fp_item = open(local_path, "r")
-            print("Available offline")
-        else:
-            print("Downloading")
-            text_buffer = web_page_to_text(BASE_ALEXA_SITE + item_to_explore) 
-            try:
-                fp_item = open_creating_dirs(local_path, "w")
-                fp_item.write(text_buffer)
-            except: #Uninterruptable write
-                pass
+        # Verify json insertion
+        item_hierarchy = item_to_explore.split("/")
+        item_hierarchy.remove("")
+        is_item_already_in_json = True
+        curr_dict = output_data
+        for key_name in item_hierarchy:
+            if key_name not in curr_dict.keys():
+                is_item_already_in_json = False
+                break
+            else:
+                curr_dict = curr_dict[key_name]
+        if not is_item_already_in_json:
+            local_path = LOCAL_PATH_PREFIX + item_to_explore[1:] + ".html"
+            always_increment += 1
+            print("")
+            print("Exploring: " + item_to_explore)
+            print("List size: " + str(len(list_to_explore)))
+            print("Total nodes: " + str(always_increment))
+            #Verify file download
+            if os.path.exists(local_path) and os.stat(local_path).st_size != 0:
+                fp_item = open(local_path, "r")
+                print("Available offline")
+            else:
+                print("Downloading")
+                text_buffer = web_page_to_text(BASE_ALEXA_SITE + item_to_explore) 
+                try:
+                    fp_item = open_creating_dirs(local_path, "w")
+                    fp_item.write(text_buffer)
+                except: #Uninterruptable write
+                    pass
+                fp_item.close()
+                fp_item = open(local_path, "r")
+            explored_result = alexa_get_subcateg_offline(fp_item.read())
             fp_item.close()
-            fp_item = open(local_path, "r")
-        explored_result = alexa_get_subcateg_offline(fp_item.read())
-        fp_item.close()
-        if len(explored_result) != 0:
-            list_to_explore = explored_result + list_to_explore
+            if len(explored_result) != 0:
+                list_to_explore = explored_result + list_to_explore
 
