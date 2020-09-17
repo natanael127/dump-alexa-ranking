@@ -154,6 +154,7 @@ while len(list_to_explore) > 0:
             # Writes to output file with control
             dont_stress_the_disk += 1
             if dont_stress_the_disk >= THRESHOLD_TO_SAVE:
+                dont_stress_the_disk = 0;
                 overwrites_json_file(output_data, FILE_OUTPUT)
 
 # Writes final result anyway
