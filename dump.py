@@ -2,6 +2,7 @@
 import urllib.request, urllib.error, urllib.parse
 import json
 import os
+import html
 
 # CONSTANTS ============================================================================================================
 BASE_ALEXA_SITE =       "https://www.alexa.com"
@@ -114,7 +115,7 @@ while len(list_to_explore) > 0:
                 explored_subcateg.append(item_to_explore + "/" + subcateg_name)
             list_to_explore = explored_subcateg + list_to_explore
         else: # Needs to be explored by internet / file buffer
-            local_path = LOCAL_PATH_PREFIX + item_to_explore[1:] + ".html"
+            local_path = LOCAL_PATH_PREFIX + html.unescape(item_to_explore[1:]) + ".html"
             print("")
             print("Exploring: " + item_to_explore)
             print("List size: " + str(len(list_to_explore)))
@@ -122,7 +123,7 @@ while len(list_to_explore) > 0:
             # Verify file download
             if not os.path.exists(local_path) or os.stat(local_path).st_size == 0:
                 print("Downloading")
-                text_buffer = web_page_to_text(BASE_ALEXA_SITE + item_to_explore) 
+                text_buffer = web_page_to_text(html.unescape(BASE_ALEXA_SITE + item_to_explore))
                 try:
                     fp_item = open_creating_dirs(local_path, "w")
                     fp_item.write(text_buffer)
