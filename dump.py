@@ -91,6 +91,7 @@ while len(list_to_explore) > 0:
     item_to_explore = list_to_explore.pop(0) #Stack control using always 0
     if item_to_explore not in visited_list:
         visited_list.append(item_to_explore)
+        always_increment += 1
         # Verify json insertion
         item_hierarchy = item_to_explore.split("/")
         item_hierarchy.remove("")
@@ -111,7 +112,6 @@ while len(list_to_explore) > 0:
             list_to_explore = explored_subcateg + list_to_explore
         else: # Needs to be explored by internet / file buffer
             local_path = LOCAL_PATH_PREFIX + item_to_explore[1:] + ".html"
-            always_increment += 1
             print("")
             print("Exploring: " + item_to_explore)
             print("List size: " + str(len(list_to_explore)))
