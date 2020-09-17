@@ -117,8 +117,9 @@ while len(list_to_explore) > 0:
                     pass
                 fp_item.close()
                 fp_item = open(local_path, "r")
-            explored_result = alexa_get_subcateg_offline(fp_item.read())
+            text_buffer = fp_item.read()
             fp_item.close()
-            if len(explored_result) != 0:
-                list_to_explore = explored_result + list_to_explore
+            explored_subcateg = alexa_get_subcateg_offline(text_buffer)
+            if len(explored_subcateg) != 0:
+                list_to_explore = explored_subcateg + list_to_explore
 
