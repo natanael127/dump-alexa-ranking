@@ -66,9 +66,12 @@ def open_creating_dirs(path, mode):
     return fp_itemx
 
 def overwrites_json_file(dict_data, path):
-    fp = open(path, "w")
-    json.dump(dict_data, fp)
-    fp.close()
+    try:
+        fp = open(path, "w")
+        json.dump(dict_data, fp)
+        fp.close()
+    except: #Uninterruptable write
+        pass
 
 # MAIN SCRIPT ==========================================================================================================
 # Output file initialization
@@ -123,10 +126,10 @@ while len(list_to_explore) > 0:
                 try:
                     fp_item = open_creating_dirs(local_path, "w")
                     fp_item.write(text_buffer)
+                    fp_item.close()
                 except: #Uninterruptable write
                     pass
-                fp_item.close()
-            fp_item = open(local_path, "r")
+            fp_item = open(local_path, "r", encoding="cp1252")
             text_buffer = fp_item.read()
             fp_item.close()
             # Parses HTML
